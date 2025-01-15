@@ -54,6 +54,7 @@ import { telemetry } from '../../../shared/telemetry'
 import { isSsoConnection } from '../../../auth/connection'
 import { inspect } from '../../../shared/utilities/collectionUtils'
 import { DefaultAmazonQAppInitContext } from '../../../amazonq/apps/initContext'
+import { sendMessage } from '../../clients/chat/v0/chat-api'
 
 export interface ChatControllerMessagePublishers {
     readonly processPromptChatMessage: MessagePublisher<PromptMessage>
@@ -676,9 +677,13 @@ export class ChatController {
             this.telemetryHelper.setConversationStreamStartTime(tabID)
             if (isSsoConnection(AuthUtil.instance.conn)) {
                 const { $metadata, generateAssistantResponseResponse } = await session.chatSso(request)
+                const newGenerateAssistantResponseResponse = await sendMessage(
+                    'this is a test prompt',
+                    'this is a test error log'
+                )
                 response = {
                     $metadata: $metadata,
-                    message: generateAssistantResponseResponse,
+                    message: newGenerateAssistantResponseResponse,
                 }
             } else {
                 const { $metadata, sendMessageResponse } = await session.chatIam(request as SendMessageRequest)
